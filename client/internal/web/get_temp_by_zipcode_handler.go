@@ -5,20 +5,31 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/spf13/viper"
 	"github.com/victorbrugnolo/golang-temp-zipcode-client/internal/entity"
 )
 
 func GetTempByZipcodeHandler(w http.ResponseWriter, r *http.Request) {
 	zipcode := &entity.GetTemperatureByZipcodeRequest{}
+	var err error
+	var resp *http.Response
 
-	err := json.NewDecoder(r.Body).Decode(zipcode)
+	err = json.NewDecoder(r.Body).Decode(zipcode)
 
 	if err != nil || !validateZipcode(zipcode.Zipcode) {
 		http.Error(w, "invalid zipcode", http.StatusUnprocessableEntity)
 		return
 	}
 
-	resp, err := http.Get("http://localhost:8080/" + zipcode.Zipcode + "/temperature")
+	url := viper.GetString("SERVER_URL")
+
+	if url == "" {
+		resp, err = http.Get("http://localhost:8080/" + zipcode.Zipcode + "/temperature")
+
+	} else {
+		resp, err = http.Get(url + zipcode.Zipcode + "/temperature")
+
+	}
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
