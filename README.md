@@ -1,4 +1,4 @@
-# Golang temp by zipcode
+# Golang client server otel
 
 A tool for get weather of location by zipcode
 
