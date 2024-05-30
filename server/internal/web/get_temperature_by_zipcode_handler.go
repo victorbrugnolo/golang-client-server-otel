@@ -35,10 +35,10 @@ func (h *GetTemperatureByZipCodeHandler) GetTemperatureByZipcodeHandler(w http.R
 		return
 	}
 
-	_, span := tracer.Start(ctx, "get_temp_on_server_"+requestNameOTEL)
+	ctx, span := tracer.Start(ctx, "get_temp_on_server_"+requestNameOTEL)
 	defer span.End()
 
-	resp, err := h.getTemperatureByZipCodeUseCase.Execute(cep)
+	resp, err := h.getTemperatureByZipCodeUseCase.Execute(ctx, cep, tracer)
 
 	if err != nil {
 		http.Error(w, err.Message, err.StatusCode)

@@ -1,11 +1,13 @@
 package usecase
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/victorbrugnolo/golang-temp-zipcode/internal/entity"
 	"github.com/victorbrugnolo/golang-temp-zipcode/internal/repository"
+	"go.opentelemetry.io/otel"
 )
 
 func TestExecuteAndGetZipcodeDataError(t *testing.T) {
@@ -16,7 +18,7 @@ func TestExecuteAndGetZipcodeDataError(t *testing.T) {
 
 	getTemperatureByZipcodeUseCase := NewGetTemperatureByZipcodeUseCase(zipCodeRepositoryMock, weatherApiRepositoryMock)
 
-	_, err := getTemperatureByZipcodeUseCase.Execute("12345678")
+	_, err := getTemperatureByZipcodeUseCase.Execute(context.Background(), "12345678", otel.Tracer(""))
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "Zipcode not found", err.Message)
@@ -33,7 +35,7 @@ func TestExecuteAndGetWeatherDataError(t *testing.T) {
 
 	getTemperatureByZipcodeUseCase := NewGetTemperatureByZipcodeUseCase(zipCodeRepositoryMock, weatherApiRepositoryMock)
 
-	_, err := getTemperatureByZipcodeUseCase.Execute("12345678")
+	_, err := getTemperatureByZipcodeUseCase.Execute(context.Background(), "12345678", otel.Tracer(""))
 
 	assert.NotNil(t, err)
 	assert.Equal(t, "City not found", err.Message)
@@ -51,7 +53,7 @@ func TestExecuteSuccess(t *testing.T) {
 
 	getTemperatureByZipcodeUseCase := NewGetTemperatureByZipcodeUseCase(zipCodeRepositoryMock, weatherApiRepositoryMock)
 
-	response, err := getTemperatureByZipcodeUseCase.Execute("12345678")
+	response, err := getTemperatureByZipcodeUseCase.Execute(context.Background(), "12345678", otel.Tracer(""))
 
 	assert.Nil(t, err)
 	assert.Equal(t, 10.0, response.TempC)

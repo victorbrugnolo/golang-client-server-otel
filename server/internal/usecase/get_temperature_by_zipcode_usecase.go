@@ -1,7 +1,11 @@
 package usecase
 
 import (
+	"context"
+
+	"github.com/spf13/viper"
 	"github.com/victorbrugnolo/golang-temp-zipcode/internal/entity"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type GetTemperatureByZipcodeUseCase struct {
@@ -16,14 +20,20 @@ func NewGetTemperatureByZipcodeUseCase(zipCodeRepository ZipCodeRepositoryInterf
 	}
 }
 
-func (g *GetTemperatureByZipcodeUseCase) Execute(zipcode string) (*entity.GetTemperatureByZipcodeResponse, *entity.ErrorResponse) {
+func (g *GetTemperatureByZipcodeUseCase) Execute(ctx context.Context, zipcode string, tracer trace.Tracer) (*entity.GetTemperatureByZipcodeResponse, *entity.ErrorResponse) {
+	requestNameOTEL := viper.GetString("REQUEST_NAME_OTEL")
+
+	_, span := tracer.Start(ctx, "get_zipcode_data_on_external_api_"+requestNameOTEL)
 	zipcodeData, err := g.zipCodeRepository.GetZipcodeData(zipcode)
+	span.End()
 
 	if err != nil {
 		return nil, err
 	}
 
+	_, span = tracer.Start(ctx, "get_weather_data_on_external_api_"+requestNameOTEL)
 	weatherApiResponse, err := g.weatherApiRepository.GetWeatherData(zipcodeData.Localidade)
+	span.End()
 
 	if err != nil {
 		return nil, err
