@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
+	"github.com/spf13/viper"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type GetTemperatureByZipCodeHandler struct {
@@ -18,12 +21,22 @@ func NewGetTemperatureByZipCodeHandler(getTemperatureByZipCodeUseCase GetTempera
 }
 
 func (h *GetTemperatureByZipCodeHandler) GetTemperatureByZipcodeHandler(w http.ResponseWriter, r *http.Request) {
-	cep := mux.Vars(r)["zipcode"]
+	tracer := otel.Tracer("get-temp-by-zipcode-tracer")
+	requestNameOTEL := viper.GetString("REQUEST_NAME_OTEL")
+
+	carrier := propagation.HeaderCarrier(r.Header)
+	ctx := r.Context()
+	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
+
+	cep := chi.URLParam(r, "zipcode")
 
 	if cep == "" || len(cep) != 8 {
 		http.Error(w, "invalid zipcode", http.StatusUnprocessableEntity)
 		return
 	}
+
+	_, span := tracer.Start(ctx, "get_temp_on_server_"+requestNameOTEL)
+	defer span.End()
 
 	resp, err := h.getTemperatureByZipCodeUseCase.Execute(cep)
 
