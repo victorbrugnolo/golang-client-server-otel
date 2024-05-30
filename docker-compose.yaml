@@ -8,6 +8,12 @@ services:
       - "16686:16686"
       - "14268"
       - "14250"
+      
+  zipkin-all-in-one:
+    image: openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - "9411:9411"
 
   prometheus:
     container_name: prometheus
