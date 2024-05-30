@@ -16,8 +16,8 @@ You must configure your [Weather API](https://weatherapi.com/) key on `/server/.
 docker compose up -d
 ```
 
-The server will be running on port `:8080`
-The client will be running on port `:8081`
+- The server will be running on port `:8080`
+- The client will be running on port `:8081`
 
 ## Usage
 
