@@ -34,6 +34,7 @@ func (g *GetTemperatureByZipcodeUseCase) Execute(zipcode string) (*entity.GetTem
 	kelvinTemp := celsiusTemp + 273
 
 	getTemperatureByZipcodeResponse := entity.GetTemperatureByZipcodeResponse{
+		City:  zipcodeData.Localidade,
 		TempC: celsiusTemp,
 		TempF: fahrenheitTemp,
 		TempK: kelvinTemp,
